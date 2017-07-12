@@ -11,7 +11,7 @@ const dataTemplate = `{header:{"code": -100, "message": {"title": "", "detail": 
 /**
  *
  * @param id course id
- * @returns {Promise.<void>}
+ * @returns {Promise.<Object>}
  */
 module.exports = async id => {
   const send = dataTemplate.replace('$$ID$$', id);

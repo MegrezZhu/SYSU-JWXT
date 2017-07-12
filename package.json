@@ -1,21 +1,20 @@
 {
   "name": "jwxt",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.1.0",
+  "description": "a sysu-jwxt(Sun Yat-sen Uni - Student Education Infomation System)",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Megrez Zhu",
+  "license": "MIT",
   "dependencies": {
     "axios": "^0.16.2",
     "cheerio": "^1.0.0-rc.2",
     "lodash": "^4.17.4",
     "node-axios-cookiejar": "0.0.3",
     "require-indexify": "^1.0.0",
-    "tough-cookie": "^2.3.2",
-    "wechat-inform": "^1.0.1"
+    "tough-cookie": "^2.3.2"
   },
   "devDependencies": {
     "eslint": "^4.0.0",
