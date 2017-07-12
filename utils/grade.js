@@ -8,6 +8,13 @@ const mapper = require('./objMap');
  */
 const dataTemplate = `{header:{"code": -100, "message": {"title": "", "detail": ""}},body:{dataStores:{kccjStore:{rowSet:{"primary":[],"filter":[],"delete":[]},name:"kccjStore",pageNumber:1,pageSize:20,recordCount:0,rowSetName:"pojo_com.neusoft.education.sysu.xscj.xscjcx.model.KccjModel",order:"t.xn, t.xq, t.kch, t.bzw"}},parameters:{"kccjStore-params": [{"name": "Filter_t.pylbm_0.2114040891017291", "type": "String", "value": "'01'", "condition": " = ", "property": "t.pylbm"}, {"name": "Filter_t.xn_0.06936137591164815", "type": "String", "value": "'$$YEAR$$'", "condition": " = ", "property": "t.xn"}, {"name": "Filter_t.xq_0.8997990960174158", "type": "String", "value": "'$$SEM$$'", "condition": " = ", "property": "t.xq"}], "args": ["student"]}}}`;
 
+const courseType = {
+  '10': '公必',
+  '11': '专必',
+  '21': '专选',
+  '30': '公选'
+};
+
 /**
  * get grades
  * @param year year
@@ -35,7 +42,7 @@ module.exports = async (year, sem, axios) => {
         'Accept-Language': 'en-US, en; q=0.8, zh-Hans-CN; q=0.5, zh-Hand; q=0.3'
       }
     });
-  return lodash.get(dirtyParse(data), 'body.dataStores.kccjStore.rowSet.primary').map(
+  let grades = lodash.get(dirtyParse(data), 'body.dataStores.kccjStore.rowSet.primary').map(
     mapper({
       // 课程名称
       'kcmc': 'course',
@@ -50,7 +57,15 @@ module.exports = async (year, sem, axios) => {
       // 绩点
       'jd': 'gpa',
       // 神秘-用来查详细成绩的id
-      'cjlcId': 'id'
+      'cjlcId': 'id',
+      // 课程类别： 专必, 专选, etc
+      'kclb': 'type'
     })
   );
+
+  grades.forEach(grade => {
+    grade.type = courseType[grade.type] || '未知';
+  });
+
+  return grades;
 };
