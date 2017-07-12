@@ -13,9 +13,9 @@ const dataTemplate = `{header:{"code": -100, "message": {"title": "", "detail": 
  * @param id course id
  * @returns {Promise.<Object>}
  */
-module.exports = async id => {
+module.exports = async (id, axios) => {
   const send = dataTemplate.replace('$$ID$$', id);
-  const {data} = await instance().post('http://uems.sysu.edu.cn/jwxt/xscjcxAction/xscjcxAction.action?method=getFxcj',
+  const {data} = await axios.post('http://uems.sysu.edu.cn/jwxt/xscjcxAction/xscjcxAction.action?method=getFxcj',
     send,
     {
       headers: {

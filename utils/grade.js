@@ -14,9 +14,9 @@ const dataTemplate = `{header:{"code": -100, "message": {"title": "", "detail": 
  * @param sem semseter
  * @returns {Promise.<Array>}
  */
-module.exports = async (year, sem) => {
+module.exports = async (year, sem, axios) => {
   let send = dataTemplate.replace('$$YEAR$$', year).replace('$$SEM$$', sem);
-  const {data} = await instance().post(
+  const {data} = await axios.post(
     'http://uems.sysu.edu.cn/jwxt/xscjcxAction/xscjcxAction.action?method=getKccjList',
     send,
     {

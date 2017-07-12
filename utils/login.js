@@ -3,24 +3,28 @@ const config = require('../config/index');
 const cheerio = require('cheerio');
 const qs = require('querystring');
 const assert = require('assert');
+const _ = require('lodash');
 
 /**
  * 登录
  */
-module.exports = async () => {
+module.exports = async (netid, password, axios) => {
+  let _redirect = _.bind(redirect, null, _, axios);
   // 访问NetID登录页面获取cookie
-  let res = await instance().get('https://cas.sysu.edu.cn/cas/login', {
+  let res = await axios.get('https://cas.sysu.edu.cn/cas/login', {
     params: {
       service: 'http://uems.sysu.edu.cn/jwxt/casLogin'
     }
   });
+  // 获取jssessionid
+  let jsessionid = getJsessionId(res.headers['set-cookie']);
   // 获取post参数
   let {lt, execution} = getPostArgs(res.data);
   // 登录NetID
-  let login = instance().post(`https://cas.sysu.edu.cn/cas/login`,
+  let login = axios.post(`https://cas.sysu.edu.cn/cas/login`,
     qs.stringify({
-      username: config.netid,
-      password: config.password,
+      username: netid,
+      password: password,
       lt,
       execution,
       _eventId: 'submit',
@@ -33,18 +37,20 @@ module.exports = async () => {
     });
   let location;
   // 登录后，获取ticket
-  location = await redirect(login);
+  location = await _redirect(login);
   // 带着ticket转跳到教务系统
-  location = await redirect(location);
+  location = await _redirect(location);
   // 跳转教务系统，获得学号密码
-  location = await redirect(location);
+  location = await _redirect(location);
   // 使用学号密码进行unieap认证
-  location = await redirect(instance().get(location, {
+  location = await _redirect(axios.get(location, {
     headers: {
       'Host': 'uems.sysu.edu.cn'
     }
   }));
-  await instance().get(location);
+  await axios.get(location);
+
+  return jsessionid;
 };
 
 function getPostArgs (html) {
@@ -67,12 +73,12 @@ function getPostArgs (html) {
  * @param  {[type]} url 需要访问的url
  * @return {[type]}     返回重定向后的url
  */
-async function redirect (url) {
+async function redirect (url, axios) {
   try {
     if (url instanceof Promise) {
       await url;
     } else {
-      await instance().get(url);
+      await axios.get(url);
     }
     // 应该返回302 若返回2xx则代表转跳失败
     throw new Error('fail to redirect');
@@ -80,4 +86,13 @@ async function redirect (url) {
     assert(response && response.status === 302, `res: ${response && response.status || 'undefined'}`);
     return response.headers.location;
   }
+}
+
+/**
+ * 从cookies中提取jsessionid
+ * @param  {[type]} cookies 返回头中的cookies
+ * @return {[type]}         jsessionid
+ */
+function getJsessionId (cookies) {
+  return /JSESSIONID=([A-Z0-9]{32});/.exec(cookies)[1];
 }
