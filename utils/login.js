@@ -5,10 +5,33 @@ const qs = require('querystring');
 const assert = require('assert');
 const _ = require('lodash');
 
+let logging = null;
+
+module.exports = async (...args) => {
+  if (!logging) {
+    logging = new Promise(async (resolve, reject) => {
+      let failed = 0;
+      while (true) {
+        try {
+          resolve(await tryLogin(...args));
+          logging = null;
+        } catch (err) {
+          failed++;
+          // 2s, 8s, 18s, 32s, 50s, ... max: 30min
+          let time = Math.min(2000 * failed * failed, 30 * 60000);
+          await sleep(time);
+        }
+      }
+    });
+  }
+
+  return logging;
+};
+
 /**
  * 登录
  */
-module.exports = async (netid, password, axios) => {
+async function tryLogin (netid, password, axios) {
   let _redirect = _.bind(redirect, null, _, axios);
   // 访问NetID登录页面获取cookie
   let res = await axios.get('https://cas.sysu.edu.cn/cas/login', {
@@ -95,4 +118,10 @@ async function redirect (url, axios) {
  */
 function getJsessionId (cookies) {
   return /JSESSIONID=([A-Z0-9]{32});/.exec(cookies)[1];
+}
+
+function sleep (time) {
+  return new Promise(resolve => {
+    setTimeout(resolve, time);
+  });
 }
