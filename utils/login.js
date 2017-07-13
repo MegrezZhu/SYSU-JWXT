@@ -1,5 +1,3 @@
-const {axios: {instance}} = require('../lib');
-const config = require('../config/index');
 const cheerio = require('cheerio');
 const qs = require('querystring');
 const assert = require('assert');
@@ -7,19 +5,32 @@ const _ = require('lodash');
 
 let logging = null;
 
-module.exports = async (...args) => {
+module.exports = async function (...args) {
+  let logger = this.logger;
   if (!logging) {
     logging = new Promise(async (resolve, reject) => {
       let failed = 0;
       while (true) {
         try {
-          resolve(await tryLogin(...args));
-          logging = null;
+          logger && logger.info('try login');
+          let res = await tryLogin(...args, this.axios);
+          setImmediate(() => {
+            logger && logger.info('login succeeded');
+            logging = null;
+            resolve(res);
+          });
+          return;
         } catch (err) {
+          logger && logger.info(`login failed, error message: ${err.message}`);
           failed++;
-          // 2s, 8s, 18s, 32s, 50s, ... max: 30min
-          let time = Math.min(2000 * failed * failed, 30 * 60000);
-          await sleep(time);
+          if (this.config.maxLoginRetry !== -1 && failed > this.config.maxLoginRetry) {
+            throw new Error(`login failed! [${err.message}]`);
+          } else {
+            // 2s, 8s, 18s, 32s, 50s, ... max: 30min
+            let time = Math.min(2000 * failed * failed, 30 * 60000);
+            logger && logger.info(`retry in ${time < 60000 ? (time / 1000 + 's') : (time / 6000 + 'min')} `);
+            await sleep(time);
+          }
         }
       }
     });

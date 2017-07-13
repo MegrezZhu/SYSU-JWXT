@@ -21,7 +21,8 @@ const courseType = {
  * @param sem semseter
  * @returns {Promise.<Array>}
  */
-module.exports = async (year, sem, axios) => {
+module.exports = async function (year, sem) {
+  let axios = this.axios;
   let send = dataTemplate.replace('$$YEAR$$', year).replace('$$SEM$$', sem);
   const {data} = await axios.post(
     'http://uems.sysu.edu.cn/jwxt/xscjcxAction/xscjcxAction.action?method=getKccjList',
