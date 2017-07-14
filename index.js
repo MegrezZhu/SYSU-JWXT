@@ -1,4 +1,4 @@
-const {login, grade, gradeDetail, timetable} = require('./utils');
+const {login, grade, gradeDetail, timetable, courseList} = require('./utils');
 const {axios: {createClient}} = require('./lib');
 const assert = require('assert');
 
@@ -29,6 +29,7 @@ class Jwxt {
 Jwxt.prototype.getGradeDetail = decorate(gradeDetail);
 Jwxt.prototype.getGrades = decorate(grade);
 Jwxt.prototype.getTimetable = decorate(timetable);
+Jwxt.prototype.getCourseList = decorate(courseList);
 
 // decorator-like function that wraps the methods
 function decorate (fn) {
