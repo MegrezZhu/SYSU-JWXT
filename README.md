@@ -12,6 +12,8 @@ A  tool that aims to simplify the complicated and confusing APIs in *Sun Yat-sen
 * (only) support netid login
 * course grade
 * course grade detail, such as final mark and usual-time mark
+* curriculum (timetable)
+* course list
 
 ### Elect
 
@@ -47,8 +49,10 @@ const me = new Jwxt(netid, password, {
 * supports for [elect](http://uems.sysu.edu.cn/elect)
 
 ## Changelog
+* `0.3.0`
+  * add course list support
 * `0.2.0`
-  * add timetbable support
+  * add curriculum(timetable) support
 * `0.1.2` 
   * add course grade and detail support
 
