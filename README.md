@@ -44,11 +44,11 @@ const me = new Jwxt(netid, password, {
 
 ## Comming Feature
 
-* supports for course info
 * supports for [elect](http://uems.sysu.edu.cn/elect)
 
 ## Changelog
-
+* `0.2.0`
+  * add timetbable support
 * `0.1.2` 
   * add course grade and detail support
 

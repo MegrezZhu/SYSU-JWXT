@@ -1,4 +1,4 @@
-const {login, grade, gradeDetail} = require('./utils');
+const {login, grade, gradeDetail, timetable} = require('./utils');
 const {axios: {createClient}} = require('./lib');
 const assert = require('assert');
 
@@ -7,7 +7,7 @@ const defaultConifg = {
   maxLoginRetry: -1 // unlimited retry
 };
 
-module.exports = class Jwxt {
+class Jwxt {
   constructor (netid, password, _config) {
     assert(typeof netid === 'string', 'netid must be a string');
     assert(typeof password === 'string', 'password must be a string');
@@ -24,22 +24,22 @@ module.exports = class Jwxt {
     this.axios = createClient();
     this.jSessionId = await login.call(this, this.netid, this.password);
   }
+}
 
-  async getGrades (year, sem) {
+Jwxt.prototype.getGradeDetail = decorate(gradeDetail);
+Jwxt.prototype.getGrades = decorate(grade);
+Jwxt.prototype.getTimetable = decorate(timetable);
+
+// decorator-like function that wraps the methods
+function decorate (fn) {
+  return async function (...args) {
     try {
-      return grade.call(this, year, sem);
+      return fn.call(this, ...args);
     } catch (err) {
       this.logger && this.logger.error(err.message);
       throw err;
     }
-  }
+  };
+}
 
-  async getGradeDetail (courseId) {
-    try {
-      return gradeDetail.call(this, courseId);
-    } catch (err) {
-      this.logger && this.loggger.error(err.message);
-      throw err;
-    }
-  }
-};
+module.exports = Jwxt;
